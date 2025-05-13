@@ -51,4 +51,10 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet list Modernization8/Modernization8.sln package --vulnerable
+
+      - name: Restore Dependencies
+        run: dotnet restore Modernization8/Modernization8.sln
+
+      - name: Check for Vulnerabilities
+        run: dotnet list Modernization8/Modernization8.sln package --vulnerable
+
