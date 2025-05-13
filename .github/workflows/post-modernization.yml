@@ -18,10 +18,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore ArchitectureProject/ArchitectureProject.sln
+        run: dotnet restore Modernization8/Modernization8.sln
 
       - name: Build Solution
-        run: dotnet build ArchitectureProject/ArchitectureProject.sln --no-restore --configuration Release
+        run: dotnet build Modernization8/Modernization8.sln --no-restore --configuration Release
 
   test:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet test ArchitectureProject/ArchitectureProject.sln --no-build --configuration Release --logger "trx"
+      - run: dotnet test Modernization8/Modernization8.sln --no-build --configuration Release --logger "trx"
 
   lint:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet format ArchitectureProject/ArchitectureProject.sln --verify-no-changes
+      - run: dotnet format Modernization8/Modernization8.sln --verify-no-changes
 
   security:
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet list ArchitectureProject/ArchitectureProject.sln package --vulnerable
+      - run: dotnet list Modernization8/Modernization8.sln package --vulnerable
