@@ -80,7 +80,7 @@ jobs:
           echo "_Generated automatically by GitHub Actions on $(date)_." >> post-modernization.md
 
       - name: Upload Report Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           name: post-modernization-report
           path: post-modernization.md
