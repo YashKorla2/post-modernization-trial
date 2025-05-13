@@ -1,0 +1,86 @@
+@model IEnumerable<Cart>
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h2>Cart</h2>
+
+    <form asp-action="Index" asp-controller="Cart" method="get" class="d-flex align-items-center">
+        <input type="text" class="form-control mx-2" name="searchTerm" value="@ViewData["SearchTerm"]" placeholder="Search products..." />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="d-flex align-items-center">
+        <a asp-action="Index" asp-controller="Product" class="btn btn-primary mx-2">Products</a>
+        <a asp-action="Index" asp-controller="Order" class="btn btn-dark mx-2">Orders</a>
+    </div>
+</div>
+
+@if (Model?.Any() == true)
+{
+    <form id="cartForm" asp-action="Checkout" asp-controller="Cart" method="post">
+        <input type="hidden" asp-antiforgery="true" />
+
+        <div class="card shadow-sm p-3">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th><label asp-for="@Model.First().ProductName"></label></th>
+                        <th><label asp-for="@Model.First().Quantity"></label></th>
+                        <th><label asp-for="@Model.First().ProductPrice"></label></th>
+                        <th><label asp-for="@Model.First().TotalPrice"></label></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selectedItems" value="@item.ProductId" class="cart-checkbox" data-price="@item.TotalPrice" onchange="updateTotal()" />
+                            </td>
+                            <td>@item.ProductName</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.ProductPrice.ToString("C")</td>
+                            <td>@item.TotalPrice.ToString("C")</td>
+                            <td>
+                                <form asp-action="Delete" asp-controller="Cart" method="post" class="d-inline">
+                                    <input type="hidden" asp-antiforgery="true" />
+                                    <input type="hidden" name="id" value="@item.ProductId" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this item from the cart?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h4>Total Selected Price: <span id="totalPrice">0.00</span></h4>
+            <button type="submit" class="btn btn-primary" id="checkoutButton" disabled>Checkout</button>
+        </div>
+    </form>
+}
+else
+{
+    <p class="text-muted">Your cart is empty.</p>
+}
+
+<script>
+    function updateTotal() {
+        let total = 0;
+        let selectedItems = document.querySelectorAll('.cart-checkbox:checked');
+        
+        selectedItems.forEach(checkbox => {
+            total += parseFloat(checkbox.dataset.price);
+        });
+
+        document.getElementById('totalPrice').innerText = total.toFixed(2);
+        document.getElementById('checkoutButton').disabled = selectedItems.length === 0;
+    }
+</script>

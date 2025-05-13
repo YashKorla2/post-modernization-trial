@@ -1,0 +1,49 @@
+@model Product
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2 class="mb-3">Product Details</h2>
+
+<div class="card shadow-sm p-4">
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5"><label asp-for="ProductId"></label></dt>
+                <dd class="col-sm-7">@Model.ProductId</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductName"></label></dt>
+                <dd class="col-sm-7">@Model.ProductName</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductCategory"></label></dt>
+                <dd class="col-sm-7">@Model.ProductCategory</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductRating"></label></dt>
+                <dd class="col-sm-7">@Model.ProductRating ⭐</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5"><label asp-for="ProductPrice"></label></dt>
+                <dd class="col-sm-7">@Model.ProductPrice.ToString("C")</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductAvailableQuantity"></label></dt>
+                <dd class="col-sm-7">@Model.ProductAvailableQuantity</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductDiscount"></label></dt>
+                <dd class="col-sm-7">@Model.ProductDiscount.ToString("0.##")%</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-12">
+            <dt class="col-sm-12"><label asp-for="ProductDescription"></label></dt>
+            <dd class="col-sm-12">@Model.ProductDescription</dd>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

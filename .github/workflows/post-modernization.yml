@@ -1,0 +1,54 @@
+name: Post Modernization Checks
+
+on:
+  push:
+    branches:
+      - 'modernized/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore ArchitectureProject/ArchitectureProject.sln
+
+      - name: Build Solution
+        run: dotnet build ArchitectureProject/ArchitectureProject.sln --no-restore --configuration Release
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet test ArchitectureProject/ArchitectureProject.sln --no-build --configuration Release --logger "trx"
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet format ArchitectureProject/ArchitectureProject.sln --verify-no-changes
+
+  security:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet list ArchitectureProject/ArchitectureProject.sln package --vulnerable

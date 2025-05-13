@@ -1,0 +1,58 @@
+﻿@model ProductViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="d-flex justify-content-between">
+    <h2>Products</h2>
+
+    <form asp-action="Index" asp-controller="Product" method="get" class="d-flex align-items-center">
+        <input type="text" class="form-control mx-2" name="searchTerm" value="@ViewData["SearchTerm"]" placeholder="Search products..." />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="d-flex align-items-center">
+        <a asp-action="Create" class="btn btn-primary mx-2">Create New</a>
+        <a asp-action="Index" asp-controller="Cart" class="btn btn-secondary mx-2">Cart: @Model.CartItemCount</a>
+        <a asp-action="Index" asp-controller="Order" class="btn btn-dark mx-2">Orders</a>
+    </div>
+</div>
+
+@if (Model.Products?.Any() == true)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Products[0].ProductName)</th>
+                <th>@Html.DisplayNameFor(model => model.Products[0].ProductDescription)</th>
+                <th>@Html.DisplayNameFor(model => model.Products[0].ProductPrice)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Products)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.ProductDescription</td>
+                    <td>@item.ProductPrice.ToString("C")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-primary btn-sm">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-info btn-sm">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger btn-sm">Delete</a>
+
+                        <form asp-action="AddToCart" asp-controller="Product" method="post" class="d-inline">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <input type="number" name="quantity" value="1" min="1" class="form-control d-inline w-25" />
+                            <button type="submit" class="btn btn-success btn-sm">Add to Cart</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No products found.</p>
+}

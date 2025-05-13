@@ -1,0 +1,56 @@
+@model Product
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<h2 class="mb-3 text-danger">Delete Product</h2>
+
+<h4 class="text-warning">Are you sure you want to delete this product?</h4>
+
+<div class="card shadow-sm p-4 mb-3">
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5"><label asp-for="ProductId"></label></dt>
+                <dd class="col-sm-7">@Model.ProductId</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductName"></label></dt>
+                <dd class="col-sm-7">@Model.ProductName</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductCategory"></label></dt>
+                <dd class="col-sm-7">@Model.ProductCategory</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductRating"></label></dt>
+                <dd class="col-sm-7">@Model.ProductRating ⭐</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5"><label asp-for="ProductPrice"></label></dt>
+                <dd class="col-sm-7">@Model.ProductPrice.ToString("C")</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductAvailableQuantity"></label></dt>
+                <dd class="col-sm-7">@Model.ProductAvailableQuantity</dd>
+
+                <dt class="col-sm-5"><label asp-for="ProductDiscount"></label></dt>
+                <dd class="col-sm-7">@Model.ProductDiscount.ToString("0.##")%</dd>
+            </dl>
+        </div>
+
+        <div class="col-md-12">
+            <dt class="col-sm-12"><label asp-for="ProductDescription"></label></dt>
+            <dd class="col-sm-12">@Model.ProductDescription</dd>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ProductId" />
+    <input type="hidden" asp-antiforgery="true" />
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
