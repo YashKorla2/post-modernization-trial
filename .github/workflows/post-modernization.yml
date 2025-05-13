@@ -58,3 +58,29 @@ jobs:
       - name: Check for Vulnerabilities
         run: dotnet list Modernization8/Modernization8.sln package --vulnerable
 
+  report:
+    runs-on: ubuntu-latest
+    needs: [build, test, lint, security]
+    if: always()  # Run even if one of the jobs fails
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Create Post-Modernization Report
+        run: |
+          echo "## Post-Modernization Report" > post-modernization.md
+          echo "" >> post-modernization.md
+
+          echo "### Build Status: ${{ needs.build.result }}" >> post-modernization.md
+          echo "### Test Status: ${{ needs.test.result }}" >> post-modernization.md
+          echo "### Lint Status: ${{ needs.lint.result }}" >> post-modernization.md
+          echo "### Security Status: ${{ needs.security.result }}" >> post-modernization.md
+
+          echo "" >> post-modernization.md
+          echo "_Generated automatically by GitHub Actions on $(date)_." >> post-modernization.md
+
+      - name: Upload Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: post-modernization-report
+          path: post-modernization.md
