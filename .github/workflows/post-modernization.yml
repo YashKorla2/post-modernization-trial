@@ -5,6 +5,9 @@ on:
     branches:
       - 'modernized/**'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,10 +21,16 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore ArchitectureProject/ArchitectureProject.sln
+        run: dotnet restore Modernization8/Modernization8.sln
 
       - name: Build Solution
-        run: dotnet build ArchitectureProject/ArchitectureProject.sln --no-restore --configuration Release
+        run: dotnet build Modernization8/Modernization8.sln --no-restore --configuration Release 2>&1 | tee build.log
+
+      - name: Upload Build Log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
   test:
     runs-on: ubuntu-latest
@@ -31,7 +40,11 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet test ArchitectureProject/ArchitectureProject.sln --no-build --configuration Release --logger "trx"
+      - run: dotnet test Modernization8/Modernization8.sln --no-build --configuration Release --logger "trx" 2>&1 | tee test.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log
 
   lint:
     runs-on: ubuntu-latest
@@ -41,7 +54,11 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet format ArchitectureProject/ArchitectureProject.sln --verify-no-changes
+      - run: dotnet format Modernization8/Modernization8.sln --verify-no-changes 2>&1 | tee lint.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lint-log
+          path: lint.log
 
   security:
     runs-on: ubuntu-latest
@@ -51,4 +68,53 @@ jobs:
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet list ArchitectureProject/ArchitectureProject.sln package --vulnerable
+      - name: Restore Packages
+        run: dotnet restore Modernization8/Modernization8.sln
+      - run: dotnet list Modernization8/Modernization8.sln package --vulnerable 2>&1 | tee security.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-log
+          path: security.log
+
+  report:
+    runs-on: ubuntu-latest
+    needs: [build, test, lint, security]
+    if: always()
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Download All Logs
+        uses: actions/download-artifact@v4
+        with:
+          path: logs
+
+      - name: Generate Markdown Report
+        run: |
+          mkdir -p reports
+          REPORT=reports/post-modernization.md
+          echo "# 🛠️ Post-Modernization Report" > $REPORT
+          echo "_Generated on $(date)_\n" >> $REPORT
+
+          for job in build test lint security; do
+            LOGFILE="logs/${job}-log/${job}.log"
+            echo "## ✅ ${job^} Log" >> $REPORT
+            echo '```' >> $REPORT
+            if [[ -f "$LOGFILE" ]]; then
+              tail -n 50 "$LOGFILE" >> $REPORT
+            else
+              echo "⚠️ Log not found. Job may not have executed or artifact was missing." >> $REPORT
+            fi
+            echo '```' >> $REPORT
+            echo >> $REPORT
+          done
+
+      - name: Commit and Push Report
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/post-modernization.md
+          git commit -m "📄 Add post-modernization report with logs [skip ci]" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
